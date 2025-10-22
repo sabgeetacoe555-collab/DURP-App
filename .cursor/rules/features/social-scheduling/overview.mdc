@@ -1,0 +1,76 @@
+---
+description: Overall context and overview for the social scheduling feature.
+globs:
+alwaysApply: false
+---
+
+### Social Scheduling Feature Context
+
+#### Project Goal
+
+Introduce a **social scheduling feature** to the existing NetGains pickleball app that allows users to:
+
+- **Create sessions** with social elements (invite friends, set visibility)
+- **Join public or friend-hosted sessions**
+- **Manage game invites**
+- Integrate this functionality into the **existing Pre-Play flow**.
+
+#### Primary Use Cases (MVP)
+
+1. **Join Sessions**
+
+   - View open sessions in their area for the week
+   - Filter by visibility, location, DUPR rating, or friend-created
+   - Join public sessions directly or request invite to private ones
+
+2. **Create Sessions**
+
+   - Basic metadata: date, time, location (Google Maps)
+   - Social options: invite friends, toggle public/private
+   - Configure slots (e.g., max players, allow +1 guests)
+   - Optional DUPR rating filters
+
+3. **Manage Invitations**
+   - View incoming invites
+   - Accept or reject
+   - Track responses to invites they’ve sent
+
+#### Integration Points
+
+- **Pre-Play Flow**: Extend current session creation to include scheduling options
+- **Navigation / Sessions Tab**: Redesign to surface public games, your invites, and your scheduled games
+- **Push Notifications**: Notify users of invites, responses, upcoming sessions
+
+#### UI/UX Requirements
+
+- **"Add Details About Pre-Play"** remains the core session creation screen
+- Augment with scheduling metadata:
+  - Invite users (multi-select dropdown / search bar)
+  - Public/private toggle
+  - Max players input (plus optional guest toggle)
+
+#### MVP Deliverables
+
+1. **UI Wireframes/Mockups** for:
+
+   - Updated "Create Session" screen with social fields
+   - Sessions Tab (Join/Open/Invites layout)
+
+2. **User Flows**
+
+   - Create → Invite → Confirm
+   - Browse sessions → Join or Request
+   - Manage invites (Accept/Reject)
+
+3. **Technical Requirements Document**
+
+   - API endpoints for session creation, invite send/accept/reject, session discovery
+   - Data schema definitions and permission logic
+
+4. **Feature Shaping**
+   - Prioritized roadmap of MVP vs. future enhancements
+   - Risks, dependencies (e.g., friends list backend, location services), and tradeoffs
+
+#### Summary
+
+Responsible for **bringing social context to session scheduling**, tightly integrating it with the existing "Pre-Play" flow and expanding the **Sessions tab** to surface local and social gameplay opportunities.

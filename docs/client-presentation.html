@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity Tracking & Analytics</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .slide {
+            padding: 50px;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #455FA1;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #455FA1;
+            font-size: 1.8em;
+            margin: 15px 0;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .highlight {
+            color: #E03C31;
+            font-weight: bold;
+        }
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .feature-list li {
+            margin: 15px 0;
+            font-size: 1.2em;
+            padding-left: 30px;
+            position: relative;
+        }
+        .feature-list li:before {
+            content: "✓";
+            color: #455FA1;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        .code {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .chart-placeholder {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 300px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        .columns {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .column {
+            flex: 1;
+            padding: 15px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        button {
+            background-color: #455FA1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #3a4f85;
+        }
+        .slide-nav {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        .stat-box {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #455FA1;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 1em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="slide1" class="slide">
+        <h1>User Activity Tracking & Analytics</h1>
+        <p>Gaining valuable insights into how users interact with your app</p>
+        <div class="chart-placeholder">
+            [Animated graph showing user engagement over time]
+        </div>
+    </div>
+
+    <div id="slide2" class="slide">
+        <h2>Why Track User Activity?</h2>
+        <div class="columns">
+            <div class="column">
+                <ul class="feature-list">
+                    <li>Understand <span class="highlight">how users navigate</span> through your app</li>
+                    <li>Identify <span class="highlight">popular features</span> and areas for improvement</li>
+                    <li>Measure the <span class="highlight">impact of changes</span> on user behavior</li>
+                    <li>Make <span class="highlight">data-driven decisions</span> about feature development</li>
+                </ul>
+            </div>
+            <div class="column">
+                <div class="chart-placeholder">
+                    [Visual showing user journey heatmap]
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="slide3" class="slide">
+        <h2>What We've Implemented</h2>
+        <div class="columns">
+            <div class="column">
+                <h3>Backend Infrastructure</h3>
+                <ul class="feature-list">
+                    <li>Secure data collection and storage</li>
+                    <li>Privacy-focused tracking system</li>
+                    <li>Real-time event processing</li>
+                    <li>Advanced analytics generation</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h3>User-Facing Features</h3>
+                <ul class="feature-list">
+                    <li>Intuitive analytics dashboard</li>
+                    <li>Customizable data visualizations</li>
+                    <li>Filtering by time period and activity type</li>
+                    <li>Exportable reports and insights</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="slide4" class="slide">
+        <h2>Key Metrics We're Tracking</h2>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+            <div class="stat-box">
+                <div class="stat-number">23s</div>
+                <div class="stat-label">Avg. Screen Time</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">4.2</div>
+                <div class="stat-label">Screens Per Session</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">76%</div>
+                <div class="stat-label">Feature Adoption</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">2.8x</div>
+                <div class="stat-label">Return Rate</div>
+            </div>
+        </div>
+        <p style="margin-top: 30px;">These metrics help us understand not just <span class="highlight">what</span> users are doing, but <span class="highlight">how and why</span> they're doing it.</p>
+    </div>
+
+    <div id="slide5" class="slide">
+        <h2>How It Works: Simple Integration</h2>
+        <p>Tracking user activity is seamless with our custom hook:</p>
+        <div class="code">
+            // Track when a user visits a screen<br>
+            const { trackScreenView, trackInteraction } = useActivityTracking();<br><br>
+            
+            useEffect(() => {<br>
+            &nbsp;&nbsp;trackScreenView('HomeScreen', { referrer: 'DeepLink' });<br>
+            &nbsp;&nbsp;<br>
+            &nbsp;&nbsp;return () => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;trackScreenExit('HomeScreen');<br>
+            &nbsp;&nbsp;};<br>
+            }, []);<br><br>
+            
+            // Track user interactions<br>
+            const handleButtonPress = () => {<br>
+            &nbsp;&nbsp;trackInteraction('button_click', {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;screen: 'HomeScreen',<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;details: { buttonId: 'join_session' }<br>
+            &nbsp;&nbsp;});<br>
+            };
+        </div>
+    </div>
+
+    <div id="slide6" class="slide">
+        <h2>Analytics Dashboard</h2>
+        <p>Visualize user behavior with our intuitive analytics interface:</p>
+        <div class="chart-placeholder" style="height: 400px;">
+            [Screenshot of the Analytics Dashboard]
+        </div>
+        <p>Filter by time period, activity type, or screen to get targeted insights.</p>
+    </div>
+
+    <div id="slide7" class="slide">
+        <h2>Benefits for Your Business</h2>
+        <div class="columns">
+            <div class="column">
+                <h3>Product Development</h3>
+                <ul class="feature-list">
+                    <li>Prioritize features based on actual usage</li>
+                    <li>Identify and fix pain points in user flows</li>
+                    <li>Validate design and UX decisions with data</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h3>User Engagement</h3>
+                <ul class="feature-list">
+                    <li>Understand what keeps users coming back</li>
+                    <li>Identify drop-off points in user journeys</li>
+                    <li>Measure impact of feature updates on engagement</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="slide8" class="slide">
+        <h2>Privacy & Security</h2>
+        <p>We've built this system with privacy and security as top priorities:</p>
+        <ul class="feature-list">
+            <li>No personally identifiable information (PII) is tracked</li>
+            <li>Data is stored securely in your Supabase database</li>
+            <li>Row Level Security ensures proper data access controls</li>
+            <li>Users can only see their own analytics</li>
+            <li>Compliant with modern privacy standards and regulations</li>
+        </ul>
+    </div>
+
+    <div id="slide9" class="slide">
+        <h2>Live Demo</h2>
+        <p>Let's see the system in action with a live demonstration:</p>
+        <div class="columns">
+            <div class="column">
+                <ol>
+                    <li>User navigation through the app</li>
+                    <li>Interaction with key features</li>
+                    <li>Viewing the resulting analytics</li>
+                    <li>Exploring different data visualizations</li>
+                </ol>
+            </div>
+            <div class="column">
+                <div class="chart-placeholder">
+                    [Live Demo Placeholder]
+                </div>
+            </div>
+        </div>
+        <div class="buttons">
+            <button>Start Demo</button>
+        </div>
+    </div>
+
+    <div id="slide10" class="slide">
+        <h2>Next Steps & Customization</h2>
+        <p>The system is flexible and can be expanded to meet your specific needs:</p>
+        <div class="columns">
+            <div class="column">
+                <h3>Available Now</h3>
+                <ul class="feature-list">
+                    <li>Basic activity tracking and analytics</li>
+                    <li>Screen view and interaction monitoring</li>
+                    <li>Analytics dashboard with core metrics</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h3>Custom Enhancements</h3>
+                <ul class="feature-list">
+                    <li>Feature-specific tracking for deeper insights</li>
+                    <li>Custom reports and data exports</li>
+                    <li>Integration with other analytics platforms</li>
+                    <li>Advanced visualization dashboards</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="slide11" class="slide">
+        <h2>Questions?</h2>
+        <p>We're excited to hear your thoughts and answer any questions about this new capability.</p>
+        <div class="buttons">
+            <button>Documentation</button>
+            <button>Get Started Guide</button>
+        </div>
+        <p style="margin-top: 40px;">Thank you for your time!</p>
+    </div>
+</body>
+</html>

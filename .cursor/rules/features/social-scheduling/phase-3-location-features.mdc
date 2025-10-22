@@ -1,0 +1,435 @@
+---
+description: Phase 3: Location Features
+globs:
+alwaysApply: false
+---
+
+# Phase 3: Location Features
+
+## Overview
+
+Add comprehensive location functionality to session creation and discovery. This phase introduces PostGIS-based geospatial features, address standardization, and location-based session filtering to help users find games near them.
+
+## Goals
+
+- Replace simple text location with structured address data
+- Implement location-based session discovery
+- Add user location preferences
+- Enable radius-based session filtering
+- Prepare for friend-based location features in Phase 5
+
+## Data Model Changes
+
+### Database Extensions
+
+```sql
+-- Enable PostGIS extension for geospatial features
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS address_standardizer;
+CREATE EXTENSION IF NOT EXISTS address_standardizer_data_us;
+```
+
+### Sessions Table Location Enhancement
+
+```sql
+-- Replace simple location text with structured location data
+ALTER TABLE sessions DROP COLUMN location;
+ALTER TABLE sessions ADD COLUMN location_coordinates GEOMETRY(POINT, 4326); -- WGS84 coordinate system
+ALTER TABLE sessions ADD COLUMN location_raw_address TEXT; -- User-entered address
+ALTER TABLE sessions ADD COLUMN location_standardized_address JSONB; -- Standardized address components
+ALTER TABLE sessions ADD COLUMN location_type TEXT DEFAULT 'city' CHECK (location_type IN ('precise', 'city', 'area'));
+
+-- Spatial indexes for efficient location queries
+CREATE INDEX idx_sessions_location_coordinates ON sessions USING GIST (location_coordinates);
+CREATE INDEX idx_sessions_standardized_address ON sessions USING GIN (location_standardized_address);
+CREATE INDEX idx_sessions_location_city ON sessions USING GIN ((location_standardized_address->>'city'));
+CREATE INDEX idx_sessions_location_state ON sessions USING GIN ((location_standardized_address->>'state'));
+```
+
+### User Profiles Location Enhancement
+
+```sql
+-- Add location fields to user profiles
+ALTER TABLE user_profiles ADD COLUMN location_coordinates GEOMETRY(POINT, 4326); -- User's home location
+ALTER TABLE user_profiles ADD COLUMN location_raw_address TEXT; -- User-entered address
+ALTER TABLE user_profiles ADD COLUMN location_standardized_address JSONB; -- Standardized address components
+ALTER TABLE user_profiles ADD COLUMN location_radius INTEGER DEFAULT 25; -- miles for session discovery
+
+-- Spatial indexes for user location queries
+CREATE INDEX idx_user_profiles_location_coordinates ON user_profiles USING GIST (location_coordinates);
+CREATE INDEX idx_user_profiles_standardized_address ON user_profiles USING GIN (location_standardized_address);
+```
+
+### Address Standardization Function
+
+```sql
+-- Function to standardize and parse addresses
+CREATE OR REPLACE FUNCTION standardize_session_address(raw_address TEXT)
+RETURNS JSONB AS $$
+DECLARE
+  std_addr RECORD;
+  result JSONB;
+BEGIN
+  SELECT * INTO std_addr FROM standardize_address('us_lex', 'us_gaz', 'us_rules', raw_address);
+
+  result := jsonb_build_object(
+    'house_num', std_addr.house_num,
+    'predir', std_addr.predir,
+    'name', std_addr.name,
+    'suftype', std_addr.suftype,
+    'sufdir', std_addr.sufdir,
+    'city', std_addr.city,
+    'state', std_addr.state,
+    'country', std_addr.country,
+    'postcode', std_addr.postcode,
+    'unit', std_addr.unit
+  );
+
+  RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+### PostGIS Spatial Query Function
+
+```sql
+-- Function for radius-based session discovery
+CREATE OR REPLACE FUNCTION sessions_within_radius(
+  user_lat DECIMAL,
+  user_lng DECIMAL,
+  radius_meters INTEGER
+) RETURNS SETOF sessions AS $$
+BEGIN
+  RETURN QUERY
+  SELECT s.*
+  FROM sessions s
+  WHERE s.location_coordinates IS NOT NULL
+    AND ST_DWithin(
+      s.location_coordinates::geography,
+      ST_Point(user_lng, user_lat)::geography,
+      radius_meters
+    );
+END;
+$$ LANGUAGE plpgsql;
+```
+
+## Updated Interfaces
+
+```typescript
+interface LocationData {
+  raw_address?: string;
+  standardized_address?: {
+    house_num?: string;
+    name?: string;
+    suftype?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postcode?: string;
+    unit?: string;
+  };
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  type: "precise" | "city" | "area";
+}
+
+interface SessionWithLocation extends SessionWithParticipants {
+  location_data: LocationData;
+  distance_miles?: number;
+}
+
+interface LocationFilters {
+  user_location?: {
+    lat: number;
+    lng: number;
+  };
+  radius_miles?: number;
+  city?: string;
+  state?: string;
+}
+```
+
+## UI/UX Changes
+
+### Enhanced Session Creation
+
+- Replace simple location text input with address autocomplete
+- Add location type selector (precise venue vs city/area)
+- Integrate with Google Maps API for address validation
+- Show map preview of selected location
+
+### Enhanced Session Discovery
+
+- Add location-based filtering options
+- Show distance from user's location on session cards
+- Add map view toggle for session locations
+- Location-based sorting (nearest first)
+
+### User Profile Location Settings
+
+- Add location preferences to user profile
+- Set default search radius for session discovery
+- Location privacy controls
+
+## Service Layer Updates
+
+### Enhanced Session Service
+
+```typescript
+interface SessionService {
+  // Previous methods remain unchanged
+
+  // Location-enhanced methods
+  createSocialSession: (
+    sessionData: SessionWithLocation
+  ) => Promise<SessionWithLocation>;
+  discoverSessionsNearby: (
+    userLocation: { lat: number; lng: number },
+    radiusMiles: number,
+    filters: SessionFilters
+  ) => Promise<SessionWithLocation[]>;
+
+  // Address standardization
+  standardizeAddress: (
+    rawAddress: string
+  ) => Promise<StandardizedAddress | null>;
+}
+```
+
+### Location Service
+
+```typescript
+interface LocationService {
+  // Address standardization
+  standardizeAddress: (
+    rawAddress: string
+  ) => Promise<StandardizedAddress | null>;
+
+  // Geocoding
+  geocodeAddress: (
+    address: string
+  ) => Promise<{ lat: number; lng: number } | null>;
+
+  // Distance calculations
+  calculateDistance: (
+    from: { lat: number; lng: number },
+    to: { lat: number; lng: number }
+  ) => number;
+
+  // Location validation
+  validateLocation: (locationData: LocationData) => boolean;
+}
+```
+
+### Enhanced User Profile Service
+
+```typescript
+interface UserProfileService {
+  // Previous methods remain unchanged
+
+  // Location-enhanced methods
+  updateProfileLocation: (locationData: LocationData) => Promise<UserProfile>;
+  getUserLocationPreferences: () => Promise<LocationPreferences>;
+  updateLocationPreferences: (
+    preferences: LocationPreferences
+  ) => Promise<void>;
+}
+```
+
+## Architecture Changes
+
+### Component Structure
+
+```
+components/
+├── sessions/
+│   ├── location/
+│   │   ├── LocationPicker.tsx
+│   │   ├── LocationFilters.tsx
+│   │   └── SessionMap.tsx
+│   └── enhanced/
+│       ├── LocationAwareSessionCard.tsx
+│       └── LocationBasedDiscovery.tsx
+```
+
+### State Management
+
+```typescript
+interface SessionContextType {
+  // Previous state remains unchanged
+
+  // Location additions
+  userLocation: { lat: number; lng: number } | null;
+  locationFilters: LocationFilters;
+  sessionsWithDistance: SessionWithLocation[];
+
+  // Location actions
+  setUserLocation: (location: { lat: number; lng: number }) => void;
+  updateLocationFilters: (filters: LocationFilters) => void;
+  discoverNearbySession: () => Promise<void>;
+}
+```
+
+## Edge Functions
+
+### Session Discovery with Location
+
+```typescript
+// supabase/functions/discover-sessions-location/index.ts
+serve(async (req) => {
+  const { lat, lng, radius_miles, date, dupr_min, dupr_max, city, state } =
+    await req.json();
+
+  let query = supabase
+    .from("sessions")
+    .select(
+      `
+      *,
+      session_participants(count),
+      user_profiles(display_name, dupr_rating)
+    `
+    )
+    .eq("visibility", "public")
+    .eq("date", date);
+
+  // Add DUPR filters if provided
+  if (dupr_min) query = query.gte("dupr_min", dupr_min);
+  if (dupr_max) query = query.lte("dupr_max", dupr_max);
+
+  // Location filtering - prefer precise coordinates, fallback to city
+  if (lat && lng && radius_miles) {
+    query = query.rpc("sessions_within_radius", {
+      user_lat: lat,
+      user_lng: lng,
+      radius_meters: radius_miles * 1609.34, // Convert miles to meters
+    });
+  } else if (city && state) {
+    query = query
+      .eq("location_standardized_address->city", city)
+      .eq("location_standardized_address->state", state);
+  }
+
+  const { data, error } = await query;
+
+  return new Response(JSON.stringify({ data, error }), {
+    headers: { "Content-Type": "application/json" },
+  });
+});
+```
+
+## Application-Level Address Handling
+
+### Session Service Address Integration
+
+```typescript
+// Enhanced session service with address standardization
+export const sessionService = {
+  // Address standardization helper
+  standardizeAddress: async (rawAddress: string) => {
+    if (!rawAddress) return null;
+
+    const { data, error } = await supabase.rpc("standardize_session_address", {
+      raw_address: rawAddress,
+    });
+
+    if (error) {
+      console.error("Address standardization failed:", error);
+      return null;
+    }
+
+    return data;
+  },
+
+  // Create session with location standardization
+  createSocialSession: async (sessionData: SessionWithLocation) => {
+    if (sessionData.location_data?.raw_address) {
+      const standardizedAddress = await sessionService.standardizeAddress(
+        sessionData.location_data.raw_address
+      );
+
+      if (standardizedAddress) {
+        sessionData.location_standardized_address = standardizedAddress;
+      }
+    }
+
+    const { data: session, error } = await supabase
+      .from("sessions")
+      .insert(sessionData)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return session;
+  },
+
+  // Location-based session discovery
+  discoverSessionsNearby: async (
+    userLocation: { lat: number; lng: number },
+    radiusMiles: number,
+    filters: SessionFilters
+  ) => {
+    const { data, error } = await supabase.functions.invoke(
+      "discover-sessions-location",
+      {
+        body: {
+          lat: userLocation.lat,
+          lng: userLocation.lng,
+          radius_miles: radiusMiles,
+          ...filters,
+        },
+      }
+    );
+
+    if (error) throw error;
+    return data;
+  },
+};
+```
+
+## Security Considerations
+
+### Location Privacy
+
+- Users control location sharing precision (exact vs city-level)
+- Location data only shared with session participants
+- Option to hide exact location for private sessions
+
+### Data Protection
+
+- Standardized addresses stored securely
+- Location queries use RLS policies
+- Geospatial indexes optimize performance without exposing data
+
+## Performance Optimizations
+
+### Spatial Indexing
+
+- GIST indexes on geometry columns for fast spatial queries
+- GIN indexes on JSONB address fields for text searches
+- Composite indexes for common filter combinations
+
+### Query Optimization
+
+- PostGIS spatial functions for efficient radius queries
+- Address standardization cached to reduce processing
+- Location-based pagination for large result sets
+
+## Future Considerations
+
+### Phase 4 Preparation
+
+- Location data ready for friend-based filtering
+- Spatial queries optimized for invitation targeting
+- Address standardization supports friend location matching
+
+### Phase 5 Integration
+
+- Friend location preferences
+- Location-based friend suggestions
+- Venue-specific social features
+
+This phase transforms location from simple text to a powerful geospatial system that enables precise session discovery and prepares for advanced social features in later phases.
+
+---

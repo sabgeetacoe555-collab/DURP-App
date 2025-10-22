@@ -1,0 +1,101 @@
+{
+  "expo": {
+    "name": "net-gains",
+    "slug": "net-gains",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/Logo-Black.png",
+    "scheme": "netgains",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/images/Logo-Black.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bgbgisland.net-gains",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSContactsUsageDescription": "Allow Net Gains to access your contacts to invite friends to pickleball sessions.",
+        "NSPhotoLibraryUsageDescription": "Allow Net Gains to access your photos to attach images to messages.",
+        "NSCameraUsageDescription": "Allow Net Gains to access your camera to take photos for messages."
+      },
+      "associatedDomains": [
+        "applinks:netgains.app",
+        "applinks:www.netgains.app"
+      ],
+      "entitlements": {
+        "com.apple.developer.associated-domains": [
+          "applinks:netgains.app",
+          "applinks:www.netgains.app"
+        ]
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyD95x_ScIajk5Jp4cjXj6ilmZyYUOKk5zk"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.bgbgisland.net-gains",
+      "permissions": ["android.permission.READ_CONTACTS"],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyD95x_ScIajk5Jp4cjXj6ilmZyYUOKk5zk"
+        }
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Net Gains to use your location to help you find nearby pickleball sessions."
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow Net Gains to access your contacts to invite friends to pickleball sessions."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Net Gains to access your photos to attach images to messages.",
+          "cameraPermission": "Allow Net Gains to access your camera to take photos for messages."
+        }
+      ],
+      "expo-document-picker",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Net Gains to access your camera to take photos for messages.",
+          "microphonePermission": "Allow Net Gains to access your microphone to take photos for messages.",
+          "recordAudioAndroid": false
+        }
+      ],
+      "expo-video"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8fa76822-327a-42dd-97fb-f0e1c5f1399a"
+      }
+    }
+  }
+}

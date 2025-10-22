@@ -1,0 +1,113 @@
+---
+description: User flows for the social scheduling feature.
+globs:
+alwaysApply: false
+---
+
+## NetGains – Scheduling Feature
+
+### Customer User Journey & Flow Mapping
+
+---
+
+## 🧍‍♂️ Customer Persona: "Alex the Avid Player"
+
+- Age: 28
+- Plays pickleball 3–4 times/week
+- Wants to discover games, play with friends, and stay competitive
+- Motivated by ease of scheduling, improving DUPR rating, and social interaction
+
+---
+
+## 🎯 Primary Goals
+
+1. Find games nearby and join quickly
+2. Create games and invite friends with minimal friction
+3. Manage invites and responses clearly
+4. View schedule and plan week ahead
+
+---
+
+## 🧭 Customer User Journey
+
+### Phase 1: Discovering a Game
+
+**Motivation:** Wants to play tomorrow but hasn’t planned anything yet
+
+- Opens app
+- Navigates to Sessions Tab
+- Sees:
+  - "Upcoming Sessions"
+  - "Public Games Near You"
+  - "Open Invites"
+- Filters by location, date, DUPR rating
+- Taps into an available session
+- Sees details and players
+- Joins game or sends request
+- Receives confirmation and game added to schedule
+
+### Phase 2: Creating a Game
+
+**Motivation:** Wants to host a Saturday morning game with 3 friends
+
+- Navigates to "Create Session"
+- Enters time, date, and selects location via auto-complete Search-Box
+- Sets session to "Private (invite-only)" or "Friends Only" or "Public"
+- Selects DUPR range (e.g., 3.5–4.5) with ability to remove min or max
+- Sets max players (e.g., 4), +1 guest allowed
+- Invites 3 friends (with multi-select and/or search)
+- Submits session and sees pending status
+- Friends receive push notifications
+
+### Phase 3: Managing Invitations
+
+**Motivation:** Track who’s coming and accept incoming invites
+
+- Opens "Sessions Tab"
+- Sees "Your Sessions"
+- Taps on hosted session
+- Views invitee status (Accepted, Pending, Declined)
+- Accepts or declines games they’ve been invited to
+- Sees changes reflected in real time
+
+### Phase 4: Game Day Experience
+
+- Push reminder received 1 hour before game
+- Taps into session to view pre-play checklist/questions
+- Views participant list
+- Session automatically logs into game log post-play
+
+---
+
+## 🗺️ User Flow Mapping
+
+### 1. Browse & Join Session
+
+```
+Sessions Tab → Public Sessions List → Filter/Search → Session Detail → Join Game → Confirmation
+```
+
+### 2. Create Session w/ Friends
+
+```
+Sessions Tab → Create Session → Set Time/Location → Select Visibility → Set DUPR Range/Player Cap → Invite Friends → Submit → Session Created
+```
+
+### 3. Manage Invitations
+
+```
+Sessions Tab → Open Invites → Tap Invite → Accept / Reject → Schedule Updates
+```
+
+### 4. View Upcoming Sessions
+
+```
+Sessions Tab → Your Upcoming Games → Tap Game → View Details / Participants / Cancel / Edit (if Host)
+```
+
+### 5. Handle Notifications
+
+```
+Push: "Alex invited you to a game!" → Tap Notification → Invite Detail → Accept / Reject
+Push: "Reminder: You have a game at 10am" → Tap → Game Detail Screen
+```

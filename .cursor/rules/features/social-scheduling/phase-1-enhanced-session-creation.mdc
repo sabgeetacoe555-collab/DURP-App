@@ -1,0 +1,204 @@
+---
+description: Phase 1: Enhanced Session Creation Flow
+globs:
+alwaysApply: false
+---
+
+# Phase 1: Enhanced Session Creation Flow
+
+## Overview
+
+Enhance the existing session creation flow to include social scheduling metadata while maintaining the current pre-play experience. This phase focuses on extending the data model and UI to support basic social features without friends or advanced location handling.
+
+## Goals
+
+- Extend session data model with social scheduling fields
+- Update session creation UI to include social options
+- Maintain backward compatibility with existing sessions
+- Prepare foundation for future social features
+
+## Data Model Changes
+
+### Sessions Table Extensions
+
+```sql
+-- Add social scheduling fields to existing sessions table
+ALTER TABLE sessions ADD COLUMN visibility TEXT DEFAULT 'public' CHECK (visibility IN ('public', 'private'));
+ALTER TABLE sessions ADD COLUMN max_players INTEGER DEFAULT 4;
+ALTER TABLE sessions ADD COLUMN allow_guests BOOLEAN DEFAULT false;
+ALTER TABLE sessions ADD COLUMN dupr_min DECIMAL(3,1);
+ALTER TABLE sessions ADD COLUMN dupr_max DECIMAL(3,1);
+ALTER TABLE sessions ADD COLUMN status TEXT DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'cancelled', 'completed'));
+```
+
+### Updated Session Interface
+
+```typescript
+interface EnhancedSession extends Session {
+  // Social scheduling fields
+  visibility: "public" | "friends" | "private";
+  max_players: number;
+  allow_guests: boolean;
+  dupr_min?: number;
+  dupr_max?: number;
+  status: "scheduled" | "cancelled" | "completed";
+}
+```
+
+## UI/UX Changes
+
+### Enhanced Session Creation Screen
+
+**Current Flow:**
+
+1. Date/Time selection
+2. Location (text input)
+3. Session type selection
+4. Focus areas
+5. Pre-play assessment
+
+**Enhanced Flow:**
+
+1. Date/Time selection
+2. Location (text input) - unchanged
+3. Session type selection
+4. Focus areas
+5. **NEW: Social Settings**
+   - Visibility toggle (Public/Private)
+   - Max players input (2-8 players)
+   - Allow guests checkbox
+   - DUPR range selector (optional)
+6. Pre-play assessment
+
+### Session Creation Form Components
+
+**New Components Needed:**
+
+- `VisibilityToggle` - Public/Private session selector
+- `PlayerCountSelector` - Max players input with validation
+- `GuestToggle` - Allow +1 guests option
+- `DUPRRangeSelector` - Min/max DUPR rating inputs
+- `SocialSettingsCard` - Container for all social options
+
+**Form Validation:**
+
+- Max players: 2-8 range validation
+- DUPR range: Min cannot exceed max. .25 increments
+- Default values for new fields
+
+## Service Layer Updates
+
+### Enhanced Session Service
+
+```typescript
+interface SessionService {
+  // Existing methods remain unchanged
+  createSession: (sessionData: Session) => Promise<Session>;
+
+  // Enhanced method for social sessions
+  createSocialSession: (
+    sessionData: EnhancedSession
+  ) => Promise<EnhancedSession>;
+
+  // New methods for social features
+  updateSessionStatus: (
+    sessionId: string,
+    status: SessionStatus
+  ) => Promise<void>;
+  getSessionsByVisibility: (
+    visibility: "public" | "private"
+  ) => Promise<EnhancedSession[]>;
+}
+```
+
+## Architecture Changes
+
+### Component Structure
+
+```
+components/
+├── sessions/
+│   ├── SocialSettingsCard.tsx
+│   ├── VisibilityToggle.tsx
+│   ├── PlayerCountSelector.tsx
+│   ├── GuestToggle.tsx
+│   └── DUPRRangeSelector.tsx
+│   └── SessionForm.tsx
+```
+
+### State Management
+
+**Enhanced Session Context:**
+
+```typescript
+interface SessionContextType {
+  // Existing session state
+  sessions: Session[];
+
+  // Enhanced session state
+  enhancedSessions: EnhancedSession[];
+
+  // Enhanced actions
+  createSocialSession: (data: EnhancedSession) => Promise<void>;
+  updateSessionStatus: (id: string, status: SessionStatus) => Promise<void>;
+}
+```
+
+## Security Considerations
+
+### Row Level Security (RLS)
+
+**Sessions Table Policies:**
+
+```sql
+-- Users can view public sessions or their own sessions
+CREATE POLICY "Users can view accessible sessions" ON sessions
+  FOR SELECT USING (
+    visibility = 'public' OR
+    auth.uid() = user_id
+  );
+
+-- Users can only insert their own sessions
+CREATE POLICY "Users can insert their own sessions" ON sessions
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own sessions
+CREATE POLICY "Users can update their own sessions" ON sessions
+  FOR UPDATE USING (auth.uid() = user_id);
+```
+
+## Future Considerations
+
+### Phase 2 Preparation
+
+- Session data model supports upcoming features
+- UI components are modular for friend integration
+- Service layer ready for session discovery
+
+### Scalability
+
+- Database indexes for visibility queries
+- Efficient session filtering patterns
+- Prepared for participant tracking
+
+## Implementation Priority
+
+### High Priority
+
+1. Database schema migration
+2. Enhanced session creation form
+3. Basic social settings UI
+
+### Medium Priority
+
+1. Session status management
+2. Enhanced validation
+3. RLS policy implementation
+
+### Low Priority
+
+1. Advanced DUPR filtering
+2. Guest management UI
+3. Session analytics
+
+## This phase establishes the foundation for social scheduling while maintaining the existing user experience and preparing for more advanced features in subsequent phases.

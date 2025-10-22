@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity Tracking Presentation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100%;
+            background-color: #f5f5f5;
+        }
+        .slides-container {
+            height: 100%;
+            overflow: hidden;
+        }
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            box-sizing: border-box;
+            color: #333;
+            position: relative;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .slide-content {
+            max-width: 1000px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            color: #4285f4;
+        }
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            color: #4285f4;
+        }
+        p {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .feature-list {
+            text-align: left;
+            font-size: 1.4rem;
+            max-width: 800px;
+        }
+        .feature-list li {
+            margin-bottom: 1rem;
+        }
+        .two-column {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            max-width: 1000px;
+        }
+        .column {
+            width: 48%;
+        }
+        .highlight-box {
+            background-color: #e8f0fe;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 5px solid #4285f4;
+        }
+        .chart-placeholder {
+            width: 100%;
+            height: 300px;
+            background-color: #f1f3f4;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+            border: 1px dashed #4285f4;
+        }
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+        }
+        .nav-button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .slide-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="slides-container">
+        <!-- Slide 1: Title -->
+        <div id="slide1" class="slide">
+            <div class="slide-content">
+                <h1>User Activity Tracking & Analytics</h1>
+                <p>A Comprehensive Solution for NetGains</p>
+                <p class="subtitle">Understanding user behavior to build better experiences</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Problem Statement -->
+        <div id="slide2" class="slide">
+            <div class="slide-content">
+                <h2>The Visibility Challenge</h2>
+                <div class="highlight-box">
+                    <p>"How are users actually interacting with our application?"</p>
+                </div>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>What We Don't Know</h3>
+                        <ul class="feature-list">
+                            <li>Which features are most popular?</li>
+                            <li>Where do users spend their time?</li>
+                            <li>Are there unused features?</li>
+                            <li>Where do users get stuck?</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Why It Matters</h3>
+                        <ul class="feature-list">
+                            <li>Feature development prioritization</li>
+                            <li>UX improvement opportunities</li>
+                            <li>Conversion bottlenecks</li>
+                            <li>ROI on feature development</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Solution Overview -->
+        <div id="slide3" class="slide">
+            <div class="slide-content">
+                <h2>Introducing Activity Tracking</h2>
+                <p>A complete visibility solution for your application</p>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>What We Track</h3>
+                        <ul class="feature-list">
+                            <li>Screen views & duration</li>
+                            <li>User interactions (clicks, submissions)</li>
+                            <li>Feature usage</li>
+                            <li>Session information</li>
+                            <li>User journeys & flows</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>How It Works</h3>
+                        <ul class="feature-list">
+                            <li>Lightweight tracking hooks</li>
+                            <li>Secure data storage</li>
+                            <li>Real-time data collection</li>
+                            <li>Privacy-first approach</li>
+                            <li>No performance impact</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Technical Implementation -->
+        <div id="slide4" class="slide">
+            <div class="slide-content">
+                <h2>Technical Implementation</h2>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>Backend Components</h3>
+                        <ul class="feature-list">
+                            <li>Supabase Edge Functions</li>
+                            <li>PostgreSQL database storage</li>
+                            <li>Row Level Security for privacy</li>
+                            <li>Efficient data aggregation</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Frontend Components</h3>
+                        <ul class="feature-list">
+                            <li>React hooks for tracking</li>
+                            <li>Auto-capture common events</li>
+                            <li>Analytics dashboard components</li>
+                            <li>Custom visualization charts</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <p>Seamlessly integrated into your existing codebase</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Analytics Dashboard -->
+        <div id="slide5" class="slide">
+            <div class="slide-content">
+                <h2>Analytics Dashboard</h2>
+                <p>Turn data into actionable insights</p>
+                <div class="chart-placeholder">
+                    [Screenshot of Analytics Dashboard Goes Here]
+                </div>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>Key Metrics</h3>
+                        <ul class="feature-list">
+                            <li>Most viewed screens</li>
+                            <li>Average session duration</li>
+                            <li>Feature adoption rates</li>
+                            <li>Conversion funnels</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Dashboard Features</h3>
+                        <ul class="feature-list">
+                            <li>Interactive filtering</li>
+                            <li>Date range selection</li>
+                            <li>User segmentation</li>
+                            <li>Export capabilities</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Business Benefits -->
+        <div id="slide6" class="slide">
+            <div class="slide-content">
+                <h2>Business Benefits</h2>
+                <div class="highlight-box">
+                    <p>Data-driven decision making across your organization</p>
+                </div>
+                <ul class="feature-list">
+                    <li><strong>Product Teams:</strong> Prioritize features based on actual usage data</li>
+                    <li><strong>UX Designers:</strong> Identify and address friction points</li>
+                    <li><strong>Marketing:</strong> Measure the effectiveness of feature promotions</li>
+                    <li><strong>Support:</strong> Understand common user paths before issues arise</li>
+                    <li><strong>Leadership:</strong> Make informed decisions about resource allocation</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Privacy & Security -->
+        <div id="slide7" class="slide">
+            <div class="slide-content">
+                <h2>Privacy & Security</h2>
+                <p>Built with data protection as a priority</p>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>Privacy Measures</h3>
+                        <ul class="feature-list">
+                            <li>No PII beyond user IDs</li>
+                            <li>Opt-out capabilities</li>
+                            <li>Data minimization principles</li>
+                            <li>Clear privacy notices</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Security Features</h3>
+                        <ul class="feature-list">
+                            <li>Secure database storage</li>
+                            <li>Role-based access control</li>
+                            <li>Data encryption</li>
+                            <li>Regular security audits</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <p>Compliant with modern privacy regulations</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Implementation Timeline -->
+        <div id="slide8" class="slide">
+            <div class="slide-content">
+                <h2>Implementation Timeline</h2>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>Phase 1: Already Completed</h3>
+                        <ul class="feature-list">
+                            <li>Backend infrastructure</li>
+                            <li>Database schema</li>
+                            <li>Basic activity tracking</li>
+                            <li>Initial dashboard</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Phase 2: Next Steps</h3>
+                        <ul class="feature-list">
+                            <li>Custom event tracking</li>
+                            <li>Advanced visualizations</li>
+                            <li>Export capabilities</li>
+                            <li>Integration with existing analytics</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="highlight-box">
+                    <p>Ready to deploy to production immediately</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Demo -->
+        <div id="slide9" class="slide">
+            <div class="slide-content">
+                <h2>Live Demonstration</h2>
+                <div class="chart-placeholder">
+                    [Live Demo Will Be Performed Here]
+                </div>
+                <p>Watch how the system captures real user activity in real-time</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: AI-Powered Gamification & Smart Scheduling -->
+        <div id="slide10" class="slide">
+            <div class="slide-content">
+                <h2>AI-Powered Gamification & Smart Scheduling</h2>
+                <div class="highlight-box">
+                    <p>Enhancing user engagement and retention through intelligent systems</p>
+                </div>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>AI-Powered Features</h3>
+                        <ul class="feature-list">
+                            <li>Skill-based matchmaking</li>
+                            <li>Playing style analysis</li>
+                            <li>Personalized improvement recommendations</li>
+                            <li>Predictive availability modeling</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Engagement Systems</h3>
+                        <ul class="feature-list">
+                            <li>Achievement badges & rewards</li>
+                            <li>Personalized challenges</li>
+                            <li>Weather-aware scheduling</li>
+                            <li>Group optimization algorithms</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Integration Benefits -->
+        <div id="slide11" class="slide">
+            <div class="slide-content">
+                <h2>The Power of Integration</h2>
+                <div class="chart-placeholder">
+                    [Diagram of AI, Gamification, and Scheduling Integration]
+                </div>
+                <div class="two-column">
+                    <div class="column">
+                        <h3>Activity Tracking + AI</h3>
+                        <ul class="feature-list">
+                            <li>Behavior-based recommendations</li>
+                            <li>Personalized user journeys</li>
+                            <li>Predictive analytics</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <h3>Business Outcomes</h3>
+                        <ul class="feature-list">
+                            <li>25-40% increase in engagement</li>
+                            <li>30% improvement in scheduling efficiency</li>
+                            <li>20% boost in user retention</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Next Steps -->
+        <div id="slide12" class="slide">
+            <div class="slide-content">
+                <h2>Next Steps</h2>
+                <div class="highlight-box">
+                    <p>Ready to transform how you understand and engage your users?</p>
+                </div>
+                <ul class="feature-list">
+                    <li>Review proposed implementation plan</li>
+                    <li>Define custom tracking events for your business</li>
+                    <li>Schedule deployment timeline</li>
+                    <li>Plan for data analysis workshops</li>
+                    <li>Discuss customization options</li>
+                </ul>
+                <p style="margin-top: 2rem;">Questions?</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button id="prevBtn" class="nav-button">Previous</button>
+        <button id="nextBtn" class="nav-button">Next</button>
+    </div>
+    <div class="slide-indicator" id="slideIndicator">Slide 1/12</div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 12;
+        
+        function showSlide(slideNumber) {
+            // Hide all slides
+            for(let i = 1; i <= totalSlides; i++) {
+                document.getElementById(`slide${i}`).style.display = 'none';
+            }
+            
+            // Show the requested slide
+            document.getElementById(`slide${slideNumber}`).style.display = 'flex';
+            
+            // Update slide indicator
+            document.getElementById('slideIndicator').textContent = `Slide ${slideNumber}/${totalSlides}`;
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+        
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show first slide
+            showSlide(1);
+            
+            // Add event listeners
+            document.getElementById('nextBtn').addEventListener('click', nextSlide);
+            document.getElementById('prevBtn').addEventListener('click', prevSlide);
+            
+            // Add keyboard navigation
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'ArrowRight') {
+                    nextSlide();
+                } else if (event.key === 'ArrowLeft') {
+                    prevSlide();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

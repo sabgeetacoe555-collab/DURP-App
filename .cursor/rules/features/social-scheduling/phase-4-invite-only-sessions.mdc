@@ -1,0 +1,477 @@
+---
+description: Phase 4: Invite-Only Sessions
+globs:
+alwaysApply: false
+---
+
+# Phase 4: Invite-Only Sessions
+
+## Overview
+
+Introduce invitation-based session management allowing users to create private sessions and invite specific players. This phase adds invitation workflows, notification systems, and private session discovery while preparing for friend-based features in Phase 5.
+
+## Goals
+
+- Enable private session creation with invitation system
+- Add invitation management (send, accept, decline)
+- Implement push notifications for invitations
+- Create invitation-based session discovery
+- Prepare invitation system for friend integration
+
+## Data Model Changes
+
+### Sessions Table Enhancement
+
+```sql
+-- Update visibility to support friends option (preparing for Phase 5)
+ALTER TABLE sessions DROP CONSTRAINT check_visibility;
+ALTER TABLE sessions ADD CONSTRAINT check_visibility CHECK (visibility IN ('public', 'friends', 'private'));
+```
+
+### New Tables
+
+#### Invitations Table
+
+```sql
+CREATE TABLE invitations (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  session_id UUID REFERENCES sessions(id) ON DELETE CASCADE,
+  inviter_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  invitee_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined')),
+  message TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  responded_at TIMESTAMP WITH TIME ZONE,
+  UNIQUE(session_id, invitee_id)
+);
+
+-- Indexes for invitation queries
+CREATE INDEX idx_invitations_invitee_id ON invitations (invitee_id);
+CREATE INDEX idx_invitations_session_id ON invitations (session_id);
+CREATE INDEX idx_invitations_status ON invitations (status);
+```
+
+#### Session Participants Enhancement
+
+```sql
+-- Add invitation-related fields to session participants
+ALTER TABLE session_participants ADD COLUMN invitation_id UUID REFERENCES invitations(id);
+ALTER TABLE session_participants ADD COLUMN is_host BOOLEAN DEFAULT false;
+ALTER TABLE session_participants DROP CONSTRAINT IF EXISTS session_participants_status_check;
+ALTER TABLE session_participants ADD CONSTRAINT session_participants_status_check
+  CHECK (status IN ('invited', 'joined', 'declined', 'left', 'waitlisted'));
+```
+
+## Updated Interfaces
+
+```typescript
+interface Invitation {
+  id: string;
+  session_id: string;
+  inviter_id: string;
+  invitee_id: string;
+  status: "pending" | "accepted" | "declined";
+  message?: string;
+  created_at: string;
+  responded_at?: string;
+  session?: SessionWithParticipants;
+  inviter?: UserProfile;
+}
+
+interface SessionWithInvitations extends SessionWithLocation {
+  invitations: Invitation[];
+  pending_invitations: number;
+  accepted_invitations: number;
+  can_invite: boolean;
+}
+
+interface InvitationFilters {
+  status?: "pending" | "accepted" | "declined";
+  session_type?: string;
+  date_range?: {
+    start: string;
+    end: string;
+  };
+}
+```
+
+## UI/UX Changes
+
+### Enhanced Session Creation
+
+- Add "Invite Players" option for private sessions
+- User search/selection interface for invitations
+- Custom invitation message input
+- Preview of invited players list
+
+### New Invitation Management Screen
+
+- **Location**: `app/(tabs)/sessions/invites.tsx`
+- **Features**:
+  - Received invitations list
+  - Sent invitations tracking
+  - Accept/decline actions
+  - Invitation status indicators
+
+### Enhanced Sessions Tab Navigation
+
+- Add "Invites" tab alongside "My Sessions", "Browse", "Joined"
+- Badge counts for pending invitations
+- Quick access to invitation actions
+
+### Session Discovery for Private Sessions
+
+- Show invited private sessions in discovery
+- Filter by invitation status
+- Location-based invitation suggestions (for Phase 5)
+
+## Service Layer Updates
+
+### Invitation Service
+
+```typescript
+interface InvitationService {
+  // Send invitations
+  sendInvitations: (
+    sessionId: string,
+    inviteeIds: string[],
+    message?: string
+  ) => Promise<Invitation[]>;
+
+  // Get invitations
+  getReceivedInvitations: (
+    filters?: InvitationFilters
+  ) => Promise<Invitation[]>;
+  getSentInvitations: (sessionId?: string) => Promise<Invitation[]>;
+
+  // Respond to invitations
+  acceptInvitation: (invitationId: string) => Promise<void>;
+  declineInvitation: (invitationId: string) => Promise<void>;
+
+  // Invitation management
+  cancelInvitation: (invitationId: string) => Promise<void>;
+  resendInvitation: (invitationId: string) => Promise<void>;
+}
+```
+
+### Enhanced Session Service
+
+```typescript
+interface SessionService {
+  // Previous methods remain unchanged
+
+  // Invitation-enhanced methods
+  createPrivateSession: (
+    sessionData: SessionWithInvitations,
+    inviteeIds: string[],
+    message?: string
+  ) => Promise<SessionWithInvitations>;
+
+  getInvitedSessions: () => Promise<SessionWithInvitations[]>;
+  getSessionInvitations: (sessionId: string) => Promise<Invitation[]>;
+
+  // Enhanced participant management
+  addParticipantByInvitation: (
+    sessionId: string,
+    invitationId: string
+  ) => Promise<SessionParticipant>;
+}
+```
+
+### User Search Service
+
+```typescript
+interface UserSearchService {
+  // User discovery for invitations
+  searchUsers: (query: string) => Promise<UserProfile[]>;
+  searchUsersByLocation: (
+    location: { lat: number; lng: number },
+    radiusMiles: number
+  ) => Promise<UserProfile[]>;
+
+  // User validation
+  validateInviteeIds: (userIds: string[]) => Promise<string[]>;
+  checkInvitationEligibility: (
+    sessionId: string,
+    userId: string
+  ) => Promise<boolean>;
+}
+```
+
+## Architecture Changes
+
+### Component Structure
+
+```
+components/
+├── sessions/
+│   ├── invitations/
+│   │   ├── InvitationsList.tsx
+│   │   ├── InvitationCard.tsx
+│   │   ├── InvitePlayersModal.tsx
+│   │   └── UserSearchInput.tsx
+│   ├── creation/
+│   │   ├── InvitePlayersStep.tsx
+│   │   └── InvitationPreview.tsx
+│   └── discovery/
+│       └── InvitedSessionsFilter.tsx
+```
+
+### State Management
+
+```typescript
+interface SessionContextType {
+  // Previous state remains unchanged
+
+  // Invitation additions
+  receivedInvitations: Invitation[];
+  sentInvitations: Invitation[];
+  invitedSessions: SessionWithInvitations[];
+
+  // Invitation actions
+  sendInvitations: (
+    sessionId: string,
+    inviteeIds: string[],
+    message?: string
+  ) => Promise<void>;
+  acceptInvitation: (invitationId: string) => Promise<void>;
+  declineInvitation: (invitationId: string) => Promise<void>;
+  refreshInvitations: () => Promise<void>;
+}
+```
+
+## Edge Functions
+
+### Send Invitation Function
+
+```typescript
+// supabase/functions/send-invitation/index.ts
+serve(async (req) => {
+  const { session_id, invitee_ids, message } = await req.json();
+  const inviter_id = req.headers.get("user-id");
+
+  // Validate session ownership
+  const { data: session } = await supabase
+    .from("sessions")
+    .select("user_id")
+    .eq("id", session_id)
+    .single();
+
+  if (session?.user_id !== inviter_id) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 403,
+    });
+  }
+
+  // Create invitations
+  const invitations = invitee_ids.map((invitee_id) => ({
+    session_id,
+    inviter_id,
+    invitee_id,
+    message,
+  }));
+
+  const { data, error } = await supabase
+    .from("invitations")
+    .insert(invitations)
+    .select();
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+    });
+  }
+
+  // Send push notifications
+  for (const invitation of data) {
+    await sendPushNotification(invitation.invitee_id, {
+      title: "New Game Invitation!",
+      body: message || "You've been invited to join a pickleball session",
+      data: { invitation_id: invitation.id, session_id },
+    });
+  }
+
+  return new Response(JSON.stringify({ data }));
+});
+```
+
+### Invitation Response Function
+
+```typescript
+// supabase/functions/respond-invitation/index.ts
+serve(async (req) => {
+  const { invitation_id, response } = await req.json();
+  const user_id = req.headers.get("user-id");
+
+  // Update invitation status
+  const { data: invitation, error } = await supabase
+    .from("invitations")
+    .update({
+      status: response,
+      responded_at: new Date().toISOString(),
+    })
+    .eq("id", invitation_id)
+    .eq("invitee_id", user_id)
+    .select("*, sessions(*)")
+    .single();
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+    });
+  }
+
+  // If accepted, add to session participants
+  if (response === "accepted") {
+    await supabase.from("session_participants").insert({
+      session_id: invitation.session_id,
+      user_id,
+      invitation_id,
+      status: "joined",
+    });
+
+    // Notify session creator
+    await sendPushNotification(invitation.sessions.user_id, {
+      title: "Invitation Accepted!",
+      body: `Someone accepted your invitation to join the session`,
+      data: { session_id: invitation.session_id },
+    });
+  }
+
+  return new Response(JSON.stringify({ data: invitation }));
+});
+```
+
+## Security Considerations
+
+### Row Level Security (RLS)
+
+#### Invitations Table Policies
+
+```sql
+-- Users can view invitations they sent or received
+CREATE POLICY "Users can view their invitations" ON invitations
+  FOR SELECT USING (
+    auth.uid() = inviter_id OR
+    auth.uid() = invitee_id
+  );
+
+-- Users can send invitations to their own sessions
+CREATE POLICY "Users can send invitations" ON invitations
+  FOR INSERT WITH CHECK (
+    auth.uid() = inviter_id AND
+    session_id IN (
+      SELECT id FROM sessions WHERE user_id = auth.uid()
+    )
+  );
+
+-- Users can update invitations they received
+CREATE POLICY "Users can respond to invitations" ON invitations
+  FOR UPDATE USING (auth.uid() = invitee_id);
+```
+
+#### Enhanced Session Participants Policies
+
+```sql
+-- Update policy to include invitation-based participation
+DROP POLICY IF EXISTS "Users can join sessions" ON session_participants;
+CREATE POLICY "Users can join sessions" ON session_participants
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id AND (
+      -- Public sessions
+      session_id IN (
+        SELECT id FROM sessions WHERE visibility = 'public'
+      ) OR
+      -- Invited to private sessions
+      invitation_id IN (
+        SELECT id FROM invitations
+        WHERE invitee_id = auth.uid() AND status = 'accepted'
+      )
+    )
+  );
+```
+
+### Invitation Validation
+
+- Prevent duplicate invitations to same user
+- Validate session capacity before accepting invitations
+- Check session status (only scheduled sessions can receive invitations)
+- Prevent self-invitations
+
+## Push Notification System
+
+### Notification Types
+
+- **Invitation Received**: New invitation to join session
+- **Invitation Accepted**: Someone accepted your invitation
+- **Invitation Declined**: Someone declined your invitation
+- **Session Reminder**: Upcoming session reminder for invited participants
+
+### Notification Payload Structure
+
+```typescript
+interface NotificationPayload {
+  type:
+    | "invitation_received"
+    | "invitation_accepted"
+    | "invitation_declined"
+    | "session_reminder";
+  title: string;
+  body: string;
+  data: {
+    invitation_id?: string;
+    session_id: string;
+    inviter_id?: string;
+  };
+}
+```
+
+## Business Logic
+
+### Invitation Workflow
+
+1. **Session Creation**: User creates private session
+2. **Player Selection**: User searches and selects players to invite
+3. **Invitation Sending**: System creates invitations and sends notifications
+4. **Response Handling**: Invitees accept/decline invitations
+5. **Participant Management**: Accepted invitations become session participants
+
+### Session Capacity Management
+
+- Track invited vs accepted vs joined participants
+- Prevent over-inviting beyond session capacity
+- Handle waitlist for private sessions if needed
+- Auto-decline new invitations when session is full
+
+## Performance Optimizations
+
+### Database Optimization
+
+- Indexes on invitation queries (invitee_id, session_id, status)
+- Composite indexes for common filter combinations
+- Efficient joins between invitations and sessions
+
+### Caching Strategy
+
+- Cache user search results for invitation targeting
+- Cache invitation counts for badge displays
+- Optimize notification delivery batching
+
+## Future Considerations
+
+### Phase 5 Preparation
+
+- Invitation system ready for friend-based filtering
+- User search prepared for friend prioritization
+- Notification system supports friend-specific messaging
+
+### Advanced Features
+
+- Bulk invitation management
+- Invitation templates and recurring invitations
+- Advanced notification preferences
+- Invitation analytics and tracking
+
+This phase establishes a comprehensive invitation system that enables private session management while preparing for friend-based social features in the final phase.
+
+---

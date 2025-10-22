@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Usage Dashboard Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f7;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 16px;
+            color: #666;
+            margin-top: 0;
+        }
+        .tab-bar {
+            display: flex;
+            background-color: #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .tab {
+            padding: 12px 24px;
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .tab.active {
+            background-color: #4a6ede;
+            color: white;
+        }
+        .tab-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            flex: 1;
+            margin: 0 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a6ede;
+            margin-bottom: 8px;
+        }
+        .stat-card .label {
+            font-size: 14px;
+            color: #666;
+        }
+        .chart-container {
+            margin-bottom: 24px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        .chart {
+            height: 250px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            padding: 20px;
+            justify-content: space-around;
+        }
+        .bar {
+            width: 60px;
+            background-color: #4a6ede;
+            border-radius: 6px 6px 0 0;
+            position: relative;
+            transition: height 0.5s ease;
+        }
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+        }
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .pie-chart {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background-image: conic-gradient(
+                #4CAF50 0% 67%,
+                #F44336 67% 100%
+            );
+            margin: 0 auto;
+        }
+        .pie-labels {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pie-label {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .color-box {
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            border-radius: 2px;
+        }
+        .green {
+            background-color: #4CAF50;
+        }
+        .red {
+            background-color: #F44336;
+        }
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .cost-table th, .cost-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .cost-table th {
+            background-color: #f5f5f7;
+            font-weight: 500;
+        }
+        .savings-card {
+            background-color: #e8f5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .savings-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #2e7d32;
+            margin-bottom: 12px;
+        }
+        .savings-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+        .savings-text {
+            color: #2e7d32;
+            font-size: 14px;
+        }
+        .button {
+            background-color: #f5f5f7;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 16px;
+        }
+        .button.danger {
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Usage Dashboard</h1>
+            <p>Monitor and optimize AI service usage</p>
+        </div>
+        
+        <div class="tab-bar">
+            <div class="tab active">Overview</div>
+            <div class="tab">Costs</div>
+            <div class="tab">Caching</div>
+        </div>
+        
+        <div class="tab-content">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="value">$32.40</div>
+                    <div class="label">Monthly Estimate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">127</div>
+                    <div class="label">Total Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">67%</div>
+                    <div class="label">Cache Efficiency</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Request Distribution</div>
+                <div class="chart">
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 120px;">
+                            <div class="bar-value">45</div>
+                            <div class="bar-label">Player Recs</div>
+                        </div>
+                        <div class="bar" style="height: 80px;">
+                            <div class="bar-value">30</div>
+                            <div class="bar-label">Challenges</div>
+                        </div>
+                        <div class="bar" style="height: 160px;">
+                            <div class="bar-value">52</div>
+                            <div class="bar-label">Scheduling</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="savings-card">
+                <div class="savings-title">Cost Savings</div>
+                <div class="savings-value">$21.60 saved this month</div>
+                <div class="savings-text">Cache hits prevented 67% of potential API calls</div>
+                <div class="savings-text">Potential additional savings: $8.80</div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Cache Performance</div>
+                <div class="chart">
+                    <div class="pie-chart"></div>
+                    <div class="pie-labels">
+                        <div class="pie-label">
+                            <div class="color-box green"></div>
+                            <div>Cache Hits (67%)</div>
+                        </div>
+                        <div class="pie-label">
+                            <div class="color-box red"></div>
+                            <div>API Calls (33%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button danger">Clear AI Cache</div>
+        </div>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.tab').forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
